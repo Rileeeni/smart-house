@@ -40,7 +40,7 @@ class Category(models.Model):
 
 class Scenarios(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    Device = ManyToManyField(Device)
+    device = ManyToManyField(Device)
     scenario = models.JSONField()
 
 

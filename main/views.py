@@ -5,18 +5,20 @@ from .models import Telemetry
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import viewsets
+from .models import Telemetry
+from .serializers import TelemetrySerializer
+
 
 class MySecureView(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated)
 
+
 class TelemetryAPIView(generics.ListAPIView):
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
 
-from rest_framework import viewsets
-from .models import Telemetry
-from .serializers import TelemetrySerializer
 
 class TelemetryViewSet(viewsets.ModelViewSet):
     queryset = Telemetry.objects.all()
