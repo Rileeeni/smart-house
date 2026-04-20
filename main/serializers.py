@@ -10,6 +10,9 @@ class ProfileSerializers(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializers()
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,22 +20,22 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name',]
 
 class TelemetrySerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
 
     class Meta:
         model = Telemetry
-        fields = ["temp","smoke","humidity","motion"]
+        fields = ["temperature","smoke","humidity","motion"]
 
 class RoomSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
     class Meta:
         model = Room
         fields = ['name','home']
+
 class DeviceSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     class Meta:
         model = Device
         fields = ['name','room',"uuid","Secret_key"]
+
 class HomeSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     class Meta:
