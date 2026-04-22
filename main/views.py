@@ -1,4 +1,4 @@
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 
 from .models import Profile
 from django.shortcuts import render
@@ -60,21 +60,21 @@ class AlarmList(generics.ListAPIView):
 """Лист сценариев"""
 class ScenariosList(generics.ListAPIView):
     queryset = Profile.objects.all()
-    Serializer_class = ProfileSerializers
+    serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
 """Добавть сценарий"""
 class ScenariosAdd(CreateAPIView):
-    queryset = Profile,Telemetry.objects.all()
-    serializer_class = ProfileSerializers,TelemetrySerializer
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
 """Сценарий по айди"""
-class ScenariosById(APIView):
+class ScenariosById(GenericAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
@@ -99,7 +99,7 @@ class RoomAdd(CreateAPIView):
 
 """Опред.девайс в опред. комнате """
 class RoomIdDeviceByName(ListAPIView):
-    queryset = Room,Device.objects.all()
+    queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
@@ -107,8 +107,8 @@ class RoomIdDeviceByName(ListAPIView):
 
 """Добавить девайс в комнату"""
 class RoomAddDevice(CreateAPIView):
-    queryset = Room,Device.objects.all()
-    serializer_class = RoomSerializer,DeviceSerializer
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
@@ -123,8 +123,8 @@ class RoomTelemetry(generics.ListAPIView):
 
 """Лист тревог"""
 class AlarmsList(generics.ListAPIView):
-    queryset = Telemetry,Profile.objects.all()
-    serializer_class = TelemetrySerializer,ProfileSerializers
+    queryset = Telemetry.objects.all()
+    serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
