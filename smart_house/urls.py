@@ -26,7 +26,7 @@ from rest_framework.routers import DefaultRouter
 from main.views import TelemetryViewSet
 
 router = DefaultRouter()
-router.register(r"home", TelemetryViewSet)
+router.register(r"home", TelemetryViewSet, basename="home")
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -42,7 +42,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    # path("",include(router.urls)),
+    #path("",include(router.urls)),
     path('admin/', admin.site.urls),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

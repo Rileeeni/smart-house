@@ -36,13 +36,11 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = ['name','room',"uuid"]
 
 class HomeSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
     class Meta:
         model = Home
         fields = ['name','user']
 
 class ScenariosSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
     class Meta:
         model = Scenarios
         fields = ['user','device',"scenario"]

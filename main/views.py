@@ -1,10 +1,10 @@
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
-
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .models import Profile
 from django.shortcuts import render
 from rest_framework import generics
-from .serializers import TelemetrySerializer, RoomSerializer, ProfileSerializers, DeviceSerializer
-from .models import Telemetry, Room, Device
+from .serializers import TelemetrySerializer, RoomSerializer, ProfileSerializers, DeviceSerializer,ScenariosSerializer
+from .models import Telemetry, Room, Device,Scenarios
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -67,14 +67,14 @@ class ScenariosList(generics.ListAPIView):
 
 """Добавть сценарий"""
 class ScenariosAdd(CreateAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializers
+    queryset = Scenarios.objects.all()
+    serializer_class = ScenariosSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
 """Сценарий по айди"""
-class ScenariosById(GenericAPIView):
+class ScenariosById(RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
@@ -83,8 +83,8 @@ class ScenariosById(GenericAPIView):
 
 """Лист Девайсов"""
 class DeviceList(generics.ListAPIView):
-    queryset = Room.objects.all()
-    serializer_class = RoomSerializer
+    queryset = Device.objects.all()
+    serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
