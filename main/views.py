@@ -28,7 +28,7 @@ class TelemetryAPIView(generics.ListAPIView):
     permission_classes = IsAuthenticated
 
 
-""""""
+
 class TelemetryViewSet(viewsets.ModelViewSet):
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
@@ -36,8 +36,9 @@ class TelemetryViewSet(viewsets.ModelViewSet):
     permission_classes = IsAuthenticated
 
 
-"""Профиль"""
+
 class Me(APIView):
+    """Профиль"""
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
@@ -46,64 +47,72 @@ class Me(APIView):
         return Response(serializer.data)
 
 
-"""Лист комнат"""
+
 class ListRoom(generics.ListAPIView):
+    """Лист комнат"""
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Лист Тревог"""
+
 class AlarmList(generics.ListAPIView):
+    """Лист Тревог"""
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Лист сценариев"""
+
 class ScenariosList(generics.ListAPIView):
+    """Лист сценариев"""
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Добавть сценарий"""
+
 class ScenariosAdd(CreateAPIView):
+    """Добавить сценарий"""
     queryset = Scenarios.objects.all()
     serializer_class = ScenariosSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Сценарий по айди"""
+
 class ScenariosById(RetrieveUpdateDestroyAPIView):
+    """Сценарий по айди"""
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Лист Девайсов"""
+
 class DeviceList(generics.ListAPIView):
+    """Лист Девайсов"""
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Добавить комнату"""
+
 class RoomAdd(CreateAPIView):
+    """Добавить комнату"""
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Опред.девайс в опред. комнате """
+
 class RoomIdDeviceByName(ListAPIView):
+    """Опред.девайс в опред. комнате """
     queryset = Room.objects.all()
     serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
@@ -114,24 +123,27 @@ class RoomIdDeviceByName(ListAPIView):
         return Device.objects.filter(room_id=room_id, name=device_name)
 
 
-"""Добавить девайс в комнату"""
+
 class RoomAddDevice(CreateAPIView):
+    """Добавить девайс в комнату"""
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Телеметрия опред.комнаты"""
+
 class RoomTelemetry(generics.ListAPIView):
+    """Телеметрия опред.комнаты"""
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
 
 
-"""Лист тревог"""
+
 class AlarmsList(generics.ListAPIView):
+    """Лист тревог"""
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
