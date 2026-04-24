@@ -33,7 +33,7 @@ class RoomSerializer(serializers.ModelSerializer):
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
-        fields = ['name','room',"uuid"]
+        fields = ['name','room',"uuid","secret_key"]
 
 class HomeSerializer(serializers.ModelSerializer):
     class Meta:

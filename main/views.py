@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.response import Response
+
 from .models import Profile
 from django.shortcuts import render
 from rest_framework import generics
@@ -35,10 +38,12 @@ class TelemetryViewSet(viewsets.ModelViewSet):
 
 """Профиль"""
 class Me(APIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializers
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
+
+    def get(self, request):
+        serializer = ProfileSerializers(request.user)
+        return Response(serializer.data)
 
 
 """Лист комнат"""
@@ -100,9 +105,13 @@ class RoomAdd(CreateAPIView):
 """Опред.девайс в опред. комнате """
 class RoomIdDeviceByName(ListAPIView):
     queryset = Room.objects.all()
-    serializer_class = RoomSerializer
+    serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = IsAuthenticated
+    def get_queryset(self):
+        room_id = self.kwargs['room_id']
+        device_name = self.kwargs['device_name']
+        return Device.objects.filter(room_id=room_id, name=device_name)
 
 
 """Добавить девайс в комнату"""
