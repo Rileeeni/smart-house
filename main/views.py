@@ -18,14 +18,14 @@ from .serializers import TelemetrySerializer
 
 class MySecureView(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 class TelemetryAPIView(generics.ListAPIView):
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -33,17 +33,21 @@ class TelemetryViewSet(viewsets.ModelViewSet):
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
 class Me(APIView):
     """Профиль"""
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'profile']
 
     def get(self, request):
-        serializer = ProfileSerializers(request.user)
+        serializer =ProfileSerializers(request.user)
         return Response(serializer.data)
 
 
@@ -53,7 +57,7 @@ class ListRoom(generics.ListAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -62,16 +66,16 @@ class AlarmList(generics.ListAPIView):
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
 class ScenariosList(generics.ListAPIView):
     """Лист сценариев"""
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializers
+    queryset = Scenarios.objects.all()
+    serializer_class = ScenariosSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -80,16 +84,16 @@ class ScenariosAdd(CreateAPIView):
     queryset = Scenarios.objects.all()
     serializer_class = ScenariosSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
 class ScenariosById(RetrieveUpdateDestroyAPIView):
     """Сценарий по айди"""
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializers
+    queryset = Scenarios.objects.all()
+    serializer_class = ScenariosSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -98,7 +102,7 @@ class DeviceList(generics.ListAPIView):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
@@ -107,20 +111,21 @@ class RoomAdd(CreateAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
-class RoomIdDeviceByName(ListAPIView):
+class RoomNameDeviceByName(ListAPIView):
     """Опред.девайс в опред. комнате """
     queryset = Room.objects.all()
     serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
-        room_id = self.kwargs['room_id']
+        room_name = self.kwargs['room_name']
         device_name = self.kwargs['device_name']
-        return Device.objects.filter(room_id=room_id, name=device_name)
+        return Device.objects.filter(room_name=room_name, name=device_name)
 
 
 
@@ -129,16 +134,20 @@ class RoomAddDevice(CreateAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
 
 
 class RoomTelemetry(generics.ListAPIView):
     """Телеметрия опред.комнаты"""
-    queryset = Telemetry.objects.all()
+    #queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        room_name = self.kwargs['room_name']
+        return Telemetry.objects.filter(room_name=room_name)
 
 
 
@@ -147,5 +156,5 @@ class AlarmsList(generics.ListAPIView):
     queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 

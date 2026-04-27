@@ -6,7 +6,7 @@ from .models import Profile, Category, Telemetry, Room, Device, Home, Scenarios
 class ProfileSerializers(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['user', 'address', 'avatar']
+        fields = ['username', 'email', 'avatar']
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializers()
@@ -23,7 +23,7 @@ class TelemetrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Telemetry
-        fields = ["temperature","smoke","humidity","motion"]
+        fields = ["temperature","smoke","humidity","motion","timestamp"]
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:

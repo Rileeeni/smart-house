@@ -9,8 +9,8 @@ from django.db.models import ManyToManyField
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=30)
+    username = models.OneToOneField(User, on_delete=models.CASCADE)
+    email = models.EmailField()
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
 class Home (models.Model):
@@ -18,7 +18,7 @@ class Home (models.Model):
     name = models.CharField(max_length=100)
 
 class Room(models.Model):
-    home = models.ForeignKey(Home, on_delete=models.CASCADE)
+    home = models.ForeignKey("Home", on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
 
 class Device(models.Model):
@@ -28,10 +28,12 @@ class Device(models.Model):
     name = models.CharField(max_length=100)
 
 class Telemetry(models.Model):
-   temperature = models.FloatField()
-   smoke = models.BooleanField()
-   humidity = models.FloatField()
-   motion = models.BooleanField()
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    temperature = models.FloatField()
+    humidity = models.FloatField()
+    motion = models.BooleanField(default=False)
+    smoke = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
