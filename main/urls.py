@@ -7,7 +7,7 @@ urlpatterns = [
     path("api/v1/me/rooms",ListRoom.as_view(),name='rooms'),
     # path('api/v1/me/room//<str:name>/',),
     path('api/v1/me/alarms/',AlarmList.as_view(),name='alarms'),
-    path('api/v1/me/rooms//<str:name>/telemetry/',RoomTelemetry.as_view(),name='telemetry'),
+    path('api/v1/me/rooms/<str:name>/telemetry/',RoomTelemetry.as_view(),name='telemetry'),
     path('api/v1/me/scenarios',ScenariosList.as_view(),name='scenarios'),
     path('api/v1/me/scenarios/add',ScenariosAdd.as_view(),name='scenarios_add'),
     path('api/v1/me/scenarios/<int:id>/',ScenariosById.as_view(),name='scenarios_id'),
