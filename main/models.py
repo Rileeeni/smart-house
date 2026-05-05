@@ -14,6 +14,9 @@ class Profile(models.Model):
     username = models.OneToOneField(User, on_delete=models.CASCADE)
     email = models.EmailField()
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    def clean(self):
+        if not self.email.strip():
+            raise ValidationError("Название дома не может быть пустым")
 
 class Home (models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
