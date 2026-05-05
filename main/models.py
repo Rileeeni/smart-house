@@ -1,8 +1,10 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
 
 from django.db.models import ManyToManyField
+from rest_framework.exceptions import ValidationError
 
 
 #from .serializers import TelemetrySerializer
@@ -19,7 +21,20 @@ class Home (models.Model):
 
 class Room(models.Model):
     home = models.ForeignKey("Home", on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,validators=[
+        MinValueValidator(4)
+    ])
+
+    def clean(self):
+        if not self.name.strip():
+            raise ValidationError("Название комнаты не может быть пустым")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name'],
+                                    name='unique_review')
+        ]
+
 
 class Device(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
