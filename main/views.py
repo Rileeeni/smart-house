@@ -2,9 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
-
-from .models import Profile
-from django.shortcuts import render
 from rest_framework import generics
 from .serializers import TelemetrySerializer, RoomSerializer, ProfileSerializers, DeviceSerializer,ScenariosSerializer
 from .models import Telemetry, Room, Device,Scenarios
@@ -47,7 +44,7 @@ class Me(APIView):
         fields = ['id', 'username', 'email', 'profile']
 
     def get(self, request):
-        serializer =ProfileSerializers(request.user)
+        serializer =ProfileSerializers(request.user.profile)
         return Response(serializer.data)
 
 
@@ -131,19 +128,36 @@ class RoomNameDeviceByName(ListAPIView):
 
 class RoomAddDevice(CreateAPIView):
     """Добавить девайс в комнату"""
-    queryset = Room.objects.all()
-    serializer_class = RoomSerializer
+    queryset = Device.objects.all()
+    serializer_class = DeviceSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        room_name = self.kwargs['room_name']
+        serializer.save(room_name=room_name)
+
 
 
 
 class RoomTelemetry(generics.ListAPIView):
     """Телеметрия опред.комнаты"""
-    #queryset = Telemetry.objects.all()
+    queryset = Telemetry.objects.all()
     serializer_class = TelemetrySerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        room_name = self.kwargs['room_name']
+        device_name = self.kwargs['device_name']
+        queryset = Telemetry.objects.all()
+
+        if room_name:
+            queryset = queryset.filter(room_name=room_name)
+        if device_name:
+            queryset = queryset.filter(device_name=device_name)
+
+        return queryset
 
     def get_queryset(self):
         room_name = self.kwargs['room_name']

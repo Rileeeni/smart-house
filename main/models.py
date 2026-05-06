@@ -7,16 +7,21 @@ from django.db.models import ManyToManyField
 from rest_framework.exceptions import ValidationError
 
 
-#from .serializers import TelemetrySerializer
+
 
 
 class Profile(models.Model):
     username = models.OneToOneField(User, on_delete=models.CASCADE)
     email = models.EmailField()
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    password = models.CharField(max_length=100,validators=[
+    MinValueValidator(8)
+    ])
     def clean(self):
         if not self.email.strip():
-            raise ValidationError("Название дома не может быть пустым")
+            raise ValidationError("email не может быть пустым")
+        if not self.password.strip():
+            raise ValueError("password не может быть пустым")
 
 class Home (models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

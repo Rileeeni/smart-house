@@ -8,10 +8,22 @@ from .models import Profile, Category, Telemetry, Room, Device, Home, Scenarios
 class ProfileSerializers(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['username', 'email', 'avatar']
-        def validate_email(self,value):
-            if not value.strip():
-                raise  serializers.ValidationError("email не может быть пустым")
+        fields = ['username', 'email', 'avatar',"password"]
+    def validate_email(self, email):
+        if not email.strip():
+            raise serializers.ValidationError("email не может быть пустым")
+        return email
+    def validate_password(self, password):
+        if not password.strip():
+            raise serializers.ValidationError("password не может быть пустым")
+        return password
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        profile = Profile.objects.create(validated_data)
+        profile.set_password(validated_data['password'])
+        profile.save()
+        return profile
+
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializers()
@@ -68,27 +80,34 @@ class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = ['name','room',"uuid","secret_key"]
+        extra_kwargs = {
+            'secret_key': {'write_only': True},
+            'room': {"read_only": True}
+        }
 
-        def validate_secret_key(self, secret_key):
-            if len(secret_key.strip()) < 12:
-                raise serializers.ValidationError("secret_key слишком короткий")
-            if not secret_key.strip():
-                raise  serializers.ValidationError("secret_key не может быть пустым")
-            return secret_key
-        def validate_name(self, name):
-            if len(name.strip()) < 4:
-                raise serializers.ValidationError("Название девайса слишком короткое")
-            if not name.strip():
-                raise  serializers.ValidationError("Название девайса не может быть пустым")
-            return name
-        def validate_room(self,data):
-            if name.objects.filter(
+    def validate_secret_key(self, value):
+        if len(value.strip()) < 12:
+            raise serializers.ValidationError("secret_key слишком короткий")
+        if not value.strip():
+            raise serializers.ValidationError("secret_key не может быть пустым")
+        return value
+
+    def validate_name(self, value):
+        if len(value.strip()) < 4:
+            raise serializers.ValidationError("Название девайса слишком короткое")
+        if not value.strip():
+            raise serializers.ValidationError("Название девайса не может быть пустым")
+        return value
+
+    def validate_room(self, data):
+        if name.objects.filter(
                 name=data["name"]
-            ).exists():
-                raise serializers.ValidationError(
-                    "Комната с таким название уже есть"
-                )
-            return data
+        ).exists():
+            raise serializers.ValidationError(
+                "Комната с таким название уже есть"
+            )
+        return data
+
 
 
 class HomeSerializer(serializers.ModelSerializer):
