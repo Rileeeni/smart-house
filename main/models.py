@@ -30,7 +30,7 @@ class Home (models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name'],
-                                    name='unique_review')
+                                    name='unique_name_review')
         ]
 
 class Room(models.Model):
@@ -46,7 +46,7 @@ class Room(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name'],
-                                    name='unique_review')
+                                    name='unique_room_name_review')
         ]
 
 
@@ -68,7 +68,7 @@ class Device(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name'],
-                                    name='unique_review')
+                                    name='unique_device_review')
         ]
 
 
@@ -101,7 +101,7 @@ class Category(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name'],
-                                    name='unique_review')
+                                    name='unique_category_review')
         ]
 
 class Scenarios(models.Model):
