@@ -8,21 +8,12 @@ from .models import Profile, Category, Telemetry, Room, Device, Home, Scenarios
 class ProfileSerializers(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['username', 'email', 'avatar',"password"]
+        fields = ['username', 'email', 'avatar',]
     def validate_email(self, email):
         if not email.strip():
             raise serializers.ValidationError("email не может быть пустым")
         return email
-    def validate_password(self, password):
-        if not password.strip():
-            raise serializers.ValidationError("password не может быть пустым")
-        return password
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        profile = Profile.objects.create(validated_data)
-        profile.set_password(validated_data['password'])
-        profile.save()
-        return profile
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -125,10 +116,14 @@ class HomeSerializer(serializers.ModelSerializer):
 class ScenariosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scenarios
-        fields = ['user','device',"scenario"]
-        def validate_device(self,device):
-            if not device.strip():
-                raise  serializers.ValidationError("Список девайсов  не может быть пустым")
-        def validate_scenario(self,scenario):
-            if not scenario.strip():
-                raise  serializers.ValidationError("Сценарий  не может быть пустым")
+        fields = ['user', 'device', 'scenario']
+
+    def validate_device(self, value):
+        if not value:
+            raise serializers.ValidationError("Список девайсов не может быть пустым")
+        return value
+
+    def validate_scenario(self, value):
+        if not value:
+            raise serializers.ValidationError("Сценарий не может быть пустым")
+        return value

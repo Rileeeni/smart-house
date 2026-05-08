@@ -85,8 +85,8 @@ class ScenariosAdd(AuthenticatedMixin, generics.CreateAPIView):
 
 class ScenariosById(AuthenticatedMixin, generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ScenariosSerializer
-    lookup_field = "id"
-    lookup_url_kwarg = "id"
+    lookup_field = "pk"
+    lookup_url_kwarg = "pk"
 
     def get_queryset(self):
         return Scenarios.objects.filter(user=self.request.user).prefetch_related("device")
