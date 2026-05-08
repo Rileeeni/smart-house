@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='Category',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                ('name', models.CharField(max_length=100, unique=True)),
             ],
         ),
         migrations.CreateModel(
@@ -27,8 +27,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='home', to=settings.AUTH_USER_MODEL)),
             ],
+            options={
+                'constraints': [models.UniqueConstraint(fields=('name',), name='unique_home_name')],
+            },
         ),
         migrations.CreateModel(
             name='Profile',
@@ -36,7 +39,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('email', models.EmailField(max_length=254)),
                 ('avatar', models.ImageField(blank=True, null=True, upload_to='avatars/')),
-                ('username', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('username', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -44,8 +47,11 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('home', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main.home')),
+                ('home', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rooms', to='main.home')),
             ],
+            options={
+                'constraints': [models.UniqueConstraint(fields=('home', 'name'), name='unique_room_name_per_home')],
+            },
         ),
         migrations.CreateModel(
             name='Device',
@@ -54,16 +60,19 @@ class Migration(migrations.Migration):
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
                 ('secret_key', models.CharField(max_length=255)),
                 ('name', models.CharField(max_length=100)),
-                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main.room')),
+                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='devices', to='main.room')),
             ],
+            options={
+                'constraints': [models.UniqueConstraint(fields=('room', 'name'), name='unique_device_name_per_room')],
+            },
         ),
         migrations.CreateModel(
             name='Scenarios',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('scenario', models.JSONField()),
-                ('device', models.ManyToManyField(to='main.device')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('device', models.ManyToManyField(related_name='scenarios', to='main.device')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scenarios', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -75,7 +84,7 @@ class Migration(migrations.Migration):
                 ('motion', models.BooleanField(default=False)),
                 ('smoke', models.BooleanField(default=False)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main.device')),
+                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='telemetry', to='main.device')),
             ],
         ),
     ]

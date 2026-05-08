@@ -25,7 +25,7 @@ from rest_framework.routers import DefaultRouter
 from main.views import TelemetryViewSet
 
 router = DefaultRouter()
-router.register(r"home", TelemetryViewSet, basename="home")
+router.register(r"telemetry", TelemetryViewSet, basename="telemetry")
 
 schema_view = get_schema_view(
     openapi.Info(

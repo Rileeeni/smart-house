@@ -1,174 +1,149 @@
-from django.contrib.auth.models import User
-from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.response import Response
-from rest_framework import generics
-from .serializers import TelemetrySerializer, RoomSerializer, ProfileSerializers, DeviceSerializer,ScenariosSerializer
-from .models import Telemetry, Room, Device,Scenarios
-from rest_framework.views import APIView
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework import viewsets
-from .models import Telemetry
-from .serializers import TelemetrySerializer
+
+from .models import Device, Profile, Room, Scenarios, Telemetry
+from .serializers import (
+    DeviceSerializer,
+    ProfileSerializers,
+    RoomSerializer,
+    ScenariosSerializer,
+    TelemetrySerializer,
+)
 
 
-class MySecureView(APIView):
+class AuthenticatedMixin:
     authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated]
 
 
-class TelemetryAPIView(generics.ListAPIView):
-    queryset = Telemetry.objects.all()
+class MySecureView(AuthenticatedMixin, APIView):
+    pass
+
+
+class TelemetryAPIView(AuthenticatedMixin, generics.ListAPIView):
     serializer_class = TelemetrySerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Telemetry.objects.filter(
+            device__room__home__user=self.request.user
+        ).select_related("device", "device__room")
 
 
-
-class TelemetryViewSet(viewsets.ModelViewSet):
-    queryset = Telemetry.objects.all()
+class TelemetryViewSet(AuthenticatedMixin, viewsets.ModelViewSet):
     serializer_class = TelemetrySerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Telemetry.objects.filter(
+            device__room__home__user=self.request.user
+        ).select_related("device", "device__room")
 
 
-
-class Me(APIView):
-    """Профиль"""
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'profile']
-
+class Me(AuthenticatedMixin, APIView):
     def get(self, request):
-        serializer =ProfileSerializers(request.user.profile)
+        profile, _ = Profile.objects.get_or_create(
+            username=request.user,
+            defaults={"email": request.user.email or f"{request.user.username}@example.com"},
+        )
+        serializer = ProfileSerializers(profile)
         return Response(serializer.data)
 
 
-
-class ListRoom(generics.ListAPIView):
-    """Лист комнат"""
-    queryset = Room.objects.all()
+class ListRoom(AuthenticatedMixin, generics.ListAPIView):
     serializer_class = RoomSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class AlarmList(generics.ListAPIView):
-    """Лист Тревог"""
-    queryset = Telemetry.objects.all()
-    serializer_class = TelemetrySerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class ScenariosList(generics.ListAPIView):
-    """Лист сценариев"""
-    queryset = Scenarios.objects.all()
-    serializer_class = ScenariosSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class ScenariosAdd(CreateAPIView):
-    """Добавить сценарий"""
-    queryset = Scenarios.objects.all()
-    serializer_class = ScenariosSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class ScenariosById(RetrieveUpdateDestroyAPIView):
-    """Сценарий по айди"""
-    queryset = Scenarios.objects.all()
-    serializer_class = ScenariosSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class DeviceList(generics.ListAPIView):
-    """Лист Девайсов"""
-    queryset = Device.objects.all()
-    serializer_class = DeviceSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class RoomAdd(CreateAPIView):
-    """Добавить комнату"""
-    queryset = Room.objects.all()
-    serializer_class = RoomSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
-
-
-class RoomNameDeviceByName(ListAPIView):
-    """Опред.девайс в опред. комнате """
-    queryset = Room.objects.all()
-    serializer_class = DeviceSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        room_name = self.kwargs['room_name']
-        device_name = self.kwargs['device_name']
-        return Device.objects.filter(room_name=room_name, name=device_name)
+        return Room.objects.filter(home__user=self.request.user).select_related("home")
 
 
+class AlarmList(AuthenticatedMixin, generics.ListAPIView):
+    serializer_class = TelemetrySerializer
 
-class RoomAddDevice(CreateAPIView):
-    """Добавить девайс в комнату"""
-    queryset = Device.objects.all()
+    def get_queryset(self):
+        return Telemetry.objects.filter(
+            device__room__home__user=self.request.user
+        ).filter(Q(smoke=True) | Q(motion=True)).select_related("device", "device__room")
+
+
+class ScenariosList(AuthenticatedMixin, generics.ListAPIView):
+    serializer_class = ScenariosSerializer
+
+    def get_queryset(self):
+        return Scenarios.objects.filter(user=self.request.user).prefetch_related("device")
+
+
+class ScenariosAdd(AuthenticatedMixin, generics.CreateAPIView):
+    serializer_class = ScenariosSerializer
+
+    def get_queryset(self):
+        return Scenarios.objects.filter(user=self.request.user)
+
+
+class ScenariosById(AuthenticatedMixin, generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ScenariosSerializer
+    lookup_field = "id"
+    lookup_url_kwarg = "id"
+
+    def get_queryset(self):
+        return Scenarios.objects.filter(user=self.request.user).prefetch_related("device")
+
+
+class DeviceList(AuthenticatedMixin, generics.ListAPIView):
     serializer_class = DeviceSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Device.objects.filter(room__home__user=self.request.user).select_related("room")
+
+
+class RoomAdd(AuthenticatedMixin, generics.CreateAPIView):
+    serializer_class = RoomSerializer
+
+    def get_queryset(self):
+        return Room.objects.filter(home__user=self.request.user)
+
+
+class RoomNameDeviceByName(AuthenticatedMixin, generics.ListAPIView):
+    serializer_class = DeviceSerializer
+
+    def get_queryset(self):
+        room_name = self.kwargs["name"]
+        device_name = self.kwargs["device_name"]
+        return Device.objects.filter(
+            room__home__user=self.request.user,
+            room__name=room_name,
+            name=device_name,
+        ).select_related("room")
+
+
+class RoomAddDevice(AuthenticatedMixin, generics.CreateAPIView):
+    serializer_class = DeviceSerializer
+
+    def get_queryset(self):
+        return Device.objects.filter(room__home__user=self.request.user)
 
     def perform_create(self, serializer):
-        room_name = self.kwargs['room_name']
-        serializer.save(room_name=room_name)
+        room = get_object_or_404(
+            Room.objects.select_related("home"),
+            home__user=self.request.user,
+            name=self.kwargs["name"],
+        )
+        serializer.save(room=room)
 
 
-
-
-class RoomTelemetry(generics.ListAPIView):
-    """Телеметрия опред.комнаты"""
-    queryset = Telemetry.objects.all()
+class RoomTelemetry(AuthenticatedMixin, generics.ListAPIView):
     serializer_class = TelemetrySerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        room_name = self.kwargs['room_name']
-        device_name = self.kwargs['device_name']
-        queryset = Telemetry.objects.all()
-
-        if room_name:
-            queryset = queryset.filter(room_name=room_name)
-        if device_name:
-            queryset = queryset.filter(device_name=device_name)
-
-        return queryset
-
-    def get_queryset(self):
-        room_name = self.kwargs['room_name']
-        return Telemetry.objects.filter(room_name=room_name)
+        room_name = self.kwargs["name"]
+        return Telemetry.objects.filter(
+            device__room__home__user=self.request.user,
+            device__room__name=room_name,
+        ).select_related("device", "device__room")
 
 
-
-class AlarmsList(generics.ListAPIView):
-    """Лист тревог"""
-    queryset = Telemetry.objects.all()
-    serializer_class = TelemetrySerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = [IsAuthenticated]
-
+class AlarmsList(AlarmList):
+    pass
