@@ -104,7 +104,7 @@ class DeviceSerializer(serializers.ModelSerializer):
                 name=data["name"]
         ).exists():
             raise serializers.ValidationError(
-                "Комната с таким название уже есть"
+                "Комната с таким названием уже есть"
             )
         return data
 
@@ -128,7 +128,7 @@ class ScenariosSerializer(serializers.ModelSerializer):
         fields = ['user','device',"scenario"]
         def validate_device(self,device):
             if not device.strip():
-                raise  serializers.ValidationError("Список девайсов не может быть пустым не может быть пустым")
+                raise  serializers.ValidationError("Список девайсов  не может быть пустым")
         def validate_scenario(self,scenario):
             if not scenario.strip():
-                raise  serializers.ValidationError("Сценарий не может быть пустым не может быть пустым")
+                raise  serializers.ValidationError("Сценарий  не может быть пустым")

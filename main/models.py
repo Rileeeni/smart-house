@@ -66,7 +66,7 @@ class Device(models.Model):
     ])
     def clean(self):
         if not self.name.strip():
-            raise ValidationError("Название комнаты не может быть пустым")
+            raise ValidationError("Название девайса не может быть пустым")
         if not self.secret_key.strip():
             raise ValidationError("secret_key не может быть пустым")
 
